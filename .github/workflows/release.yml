@@ -42,6 +42,7 @@ jobs:
           qt-modules: 'qtwebsockets'
           # qt-tools: 'tools_ifw'
           installer-name: anylink-installer
+          extra-args: '-DCMAKE_OSX_ARCHITECTURES=x86_64'
         - build: macos-arm64
           os: macos-latest
           qt: 6.8.1
@@ -130,7 +131,7 @@ jobs:
           qmake
           "${IQTA_TOOLS}/QtCreator/bin/jom/jom.exe" -j $(nproc) -f Makefile.Release
         elif [ "${{ matrix.build }}" = "macos" ]; then
-          qmake
+          qmake "QMAKE_APPLE_DEVICE_ARCHS=x86_64" "QMAKE_CXXFLAGS+=-target x86_64-apple-macos" "QMAKE_LFLAGS+=-target x86_64-apple-macos"
           make -j $(sysctl -n hw.logicalcpu)
         elif [ "${{ matrix.build }}" = "macos-arm64" ]; then
           qmake
@@ -182,6 +183,9 @@ jobs:
           curl -k -L -O https://github.com/tlslink/sslcon/releases/download/continuous/sslcon-macOS-amd64.tar.gz
           tar -zxvf sslcon-*.tar.gz
           cp vpnagent sslcon AnyLink.app/Contents/MacOS
+          echo "====="
+          file AnyLink.app/Contents/MacOS/*
+          echo "====="
           macdeployqt AnyLink.app
           mkdir -p ../../installer/packages/root/data
           ../../installer/ifw/bin/archivegen ../../installer/packages/root/data/anylink.7z ./AnyLink.app
